@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+  <title>Document</title>
+</head>
+  <label for="faceCount">Number of sides to color: </label>
+  <input type="number" id="faceCount" placeholder="sides count"/>
+  <button type="button" onclick="init()">Re-render</button>
+  <div id="cube"></div>
+<body>
+
+  <script>
+    let camera, scene, renderer, cube;
+    init();
+
+    function init() {
+      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
+      camera.position.z = 4;
+
+      scene = new THREE.Scene();
+
+      const piece = new THREE.BoxGeometry(1, 1, 1).toNonIndexed();
+      const material = new THREE.MeshBasicMaterial({
+        vertexColors: true
+      });
+      const positionAttribute = piece.getAttribute('position');
+      const colors = [];
+
+      const color = new THREE.Color();
+
+      for (let i = 0; i < positionAttribute.count / 6; i++) {
+
+        if (i < randomizeColor()) {
+          color.setHex(0xffffff * Math.random());
+        } else {
+          color.setHex(0xffffff);
+        }
+
+        colors.push(color.r, color.g, color.b);
+        colors.push(color.r, color.g, color.b);
+        colors.push(color.r, color.g, color.b);
+
+        colors.push(color.r, color.g, color.b);
+        colors.push(color.r, color.g, color.b);
+        colors.push(color.r, color.g, color.b);
+      } 
+
+      piece.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+      cube = new THREE.Mesh(piece, material);
+      scene.add(cube);
+
+      renderer = new THREE.WebGLRenderer({
+        antialias: true
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setAnimationLoop(animation);
+      var canvas = document.querySelectorAll('canvas');
+      if (canvas.length ) document.body.removeChild(canvas[0]);
+      document.body.appendChild(renderer.domElement);
+    }
+
+    function animation(time) {
+      cube.rotation.x = time / 2000;
+      cube.rotation.y = time / 1000;
+      renderer.render(scene, camera);
+    }
+
+    function randomizeColor() {
+      const faces = parseInt(document.querySelector('#faceCount').value);
+      if (faces !== NaN && faces != 0 && faces <=6) {
+        return faces;
+      }else {
+        document.querySelector('#faceCount').value = 2;
+        return 2;
+      }
+    }
+  </script>
+</body>
+
+</html>
